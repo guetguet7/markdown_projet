@@ -1,0 +1,55 @@
+<header class="mb-4">
+    <div class="p-4 rounded bg-light border">
+        <div class="row g-3 align-items-center">
+            <div class="col-12 col-lg-8 text-center position-relative pe-lg-5">
+                <a href="{{ path('app_home') }}" class="text-decoration-none position-absolute start-0 top-50 translate-middle-y" aria-label="Retour à l'accueil">
+                    🏠
+                </a>
+
+                <h1 class="h3 mb-2">
+                    📘 Documentation du projet
+                </h1>
+
+                <p class="mb-0 text-muted">
+                    Documentation technique générée à partir de fichiers
+                    <strong>Markdown</strong>, rendus dynamiquement avec
+                    <strong>Symfony</strong> et <strong>Twig</strong>.
+                </p>
+            </div>
+
+            <aside class="col-12 col-lg-4 d-flex justify-content-lg-end align-items-start gap-2">
+                <a class="btn btn-outline-dark d-none d-lg-inline-flex align-items-center" href="{{ path('admin') }}">
+                    🔒 Admin
+                </a>
+{% set categories = categories is defined and categories is not empty ? categories : [] %}
+                {% set active_label = 'Catégories' %}
+                {% if slug is defined %}
+                    {% for item in categories %}
+                        {% if item.slug == slug %}
+                            {% set active_label = item.label %}
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+
+                <div class="dropdown banner-dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{ active_label }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end w-100">
+                        {% for item in categories %}
+                            <li>
+                                <a class="dropdown-item {% if slug is defined and item.slug == slug %}active{% endif %}"
+                                   href="{{ path('app_docs', {slug: item.slug}) }}">
+                                    {{ item.label }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <a class="btn btn-outline-dark w-100 d-lg-none" href="{{ path('admin') }}">
+                    🔒 Accès admin
+                </a>
+            </aside>
+        </div>
+    </div>
+</header>

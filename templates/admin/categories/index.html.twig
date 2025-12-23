@@ -1,0 +1,101 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block admin_body %}
+    <div class="admin-shell d-flex">
+        <nav class="admin-sidebar d-flex flex-column p-3">
+            <div class="d-flex align-items-center mb-4">
+                <div class="rounded-circle bg-success-subtle text-dark-emphasis d-inline-flex align-items-center justify-content-center" style="width:40px;height:40px;">
+                    <span class="fw-bold">MD</span>
+                </div>
+                <div class="ms-3">
+                    <div class="fw-semibold">Admin</div>
+                    <div class="text-secondary small">Markdown</div>
+                </div>
+            </div>
+            <div class="nav flex-column gap-1">
+                {% block admin_nav %}
+                    <a class="nav-link px-3 py-2" href="{{ path('admin') }}">Dashboard</a>
+                    <a class="nav-link px-3 py-2" href="{{ path('admin_docs') }}">Documentation</a>
+                    <a class="nav-link px-3 py-2 active" href="{{ path('admin_categories') }}">Catégories</a>
+                {% endblock %}
+            </div>
+            <div class="mt-auto pt-3 border-top border-secondary-subtle text-secondary small">
+                Connecté comme {{ app.user ? app.user.userIdentifier : 'invité' }}
+            </div>
+        </nav>
+
+        <div class="flex-grow-1 d-flex flex-column">
+            <header class="admin-topbar py-3 px-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="text-secondary text-uppercase small mb-1">Espace</div>
+                    <h1 class="h4 mb-0">{% block admin_title %}Catégories{% endblock %}</h1>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <a class="btn btn-outline-light btn-sm" href="{{ path('app_home') }}">Voir le site</a>
+                </div>
+            </header>
+
+            <main class="flex-grow-1 p-4">
+                {% for label, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} shadow-sm">{{ message }}</div>
+                    {% endfor %}
+                {% endfor %}
+
+                <div class="admin-card p-4">
+                    {% block content %}
+                        {% set list = categories is defined and categories is not empty ? categories : [] %}
+                <div class="d-flex align-items-center justify-content-between mb-3 gap-2 flex-wrap">
+                    <div>
+                        <div class="text-secondary text-uppercase small">Liste des catégories</div>
+                        <span class="badge text-bg-light">{{ list|length }} élément{{ list|length > 1 ? 's' : '' }}</span>
+                    </div>
+                    <form class="d-flex gap-2" method="post" action="{{ path('admin_categories_create') }}">
+                        <input type="text" name="slug" pattern="[A-Za-z0-9-]+" required placeholder="nouvelle-categorie" class="form-control form-control-sm bg-dark text-light border-secondary" style="max-width: 200px;">
+                        <button class="btn btn-outline-light btn-sm" type="submit">+ Nouvelle catégorie</button>
+                    </form>
+                </div>
+
+                        {% if list is empty %}
+                            <p class="text-secondary mb-0">Aucune catégorie pour le moment. Ajoutez-en une pour commencer.</p>
+                        {% else %}
+                            <div class="table-responsive">
+                                <table class="table table-dark table-striped align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Nom</th>
+                                            <th scope="col">Slug</th>
+                                            <th scope="col" class="text-end">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for category in list %}
+                                            {% set label = category.label ?? category.name ?? category.slug ?? 'Sans nom' %}
+                                            {% set slug = category.slug ?? (category.name is defined ? category.name|lower|replace({' ': '-'}) : '') %}
+                                        <tr>
+                                            <td class="fw-semibold">{{ label }}</td>
+                                            <td class="text-secondary">{{ slug }}</td>
+                                            <td class="text-end">
+                                                <div class="d-flex justify-content-end gap-2 flex-wrap">
+                                                    <form class="d-flex gap-2 align-items-center" method="post" action="{{ path('admin_categories_edit', { slug: slug }) }}">
+                                                        <input type="text" name="slug_new" value="{{ slug }}" pattern="[A-Za-z0-9-]+" required class="form-control form-control-sm bg-dark text-light border-secondary" style="max-width: 160px;">
+                                                        <button class="btn btn-outline-light btn-sm" type="submit">Renommer</button>
+                                                    </form>
+                                                    <form method="post" action="{{ path('admin_categories_delete', { slug: slug }) }}" onsubmit="return confirm('Supprimer la catégorie {{ label }} ?');">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('delete_category_' ~ slug) }}">
+                                                        <button class="btn btn-outline-danger btn-sm" type="submit">Supprimer</button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% endif %}
+                    {% endblock %}
+                </div>
+            </main>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block admin_body %}
+    <div class="admin-shell d-flex">
+        <nav class="admin-sidebar d-flex flex-column p-3">
+            <div class="d-flex align-items-center mb-4">
+                <div class="rounded-circle bg-success-subtle text-dark-emphasis d-inline-flex align-items-center justify-content-center" style="width:40px;height:40px;">
+                    <span class="fw-bold">MD</span>
+                </div>
+                <div class="ms-3">
+                    <div class="fw-semibold">Admin</div>
+                    <div class="text-secondary small">Markdown</div>
+                </div>
+            </div>
+            <div class="nav flex-column gap-1">
+                {% block admin_nav %}
+                    <a class="nav-link px-3 py-2" href="{{ path('admin') }}">Dashboard</a>
+                    <a class="nav-link px-3 py-2 active" href="{{ path('admin_docs') }}">Documentation</a>
+                    <a class="nav-link px-3 py-2" href="{{ path('admin_categories') }}">Catégories</a>
+                {% endblock %}
+            </div>
+            <div class="mt-auto pt-3 border-top border-secondary-subtle text-secondary small">
+                Connecté comme {{ app.user ? app.user.userIdentifier : 'invité' }}
+            </div>
+        </nav>
+
+        <div class="flex-grow-1 d-flex flex-column">
+            <header class="admin-topbar py-3 px-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="text-secondary text-uppercase small mb-1">Espace</div>
+                    <h1 class="h4 mb-0">{% block admin_title %}Nouveau fichier{% endblock %}</h1>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    {% block admin_actions %}{% endblock %}
+                    <a class="btn btn-outline-light btn-sm" href="{{ path('app_home') }}">Voir le site</a>
+                </div>
+            </header>
+
+            <main class="flex-grow-1 p-4">
+                {% for label, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} shadow-sm">{{ message }}</div>
+                    {% endfor %}
+                {% endfor %}
+
+                <div class="admin-card p-4">
+                    {% block content %}
+                        <form method="post" class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Catégorie (slug)</label>
+                                <div class="d-flex gap-2">
+                                    <select class="form-select form-select-sm bg-dark text-light border-secondary" name="category_select">
+                                        <option value="">(racine)</option>
+                                        {% for cat in categories %}
+                                            <option value="{{ cat.slug }}">{{ cat.label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" name="category_custom" placeholder="ou nouvelle catégorie" pattern="[A-Za-z0-9-]+">
+                                </div>
+                                <div class="form-text text-secondary">Choisissez une catégorie existante ou saisissez-en une nouvelle (slug).</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Nom du fichier (slug)</label>
+                                <input type="text" name="slug" class="form-control form-control-sm bg-dark text-light border-secondary" pattern="[A-Za-z0-9-]+" required placeholder="mon-fichier">
+                                <div class="form-text text-secondary">Slug sans extension (.md ajoutée automatiquement).</div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Contenu Markdown</label>
+                                <textarea name="content" rows="14" class="form-control bg-dark text-light border-secondary font-monospace" placeholder="# Titre"></textarea>
+                            </div>
+                            <div class="col-12 d-flex justify-content-end gap-2">
+                                <a class="btn btn-outline-light" href="{{ path('admin_docs') }}">Annuler</a>
+                                <button class="btn btn-success" type="submit">Créer le fichier</button>
+                            </div>
+                        </form>
+                    {% endblock %}
+                </div>
+            </main>
+        </div>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const textarea = document.querySelector('textarea[name="content"]');
+            if (!textarea) return;
+            new EasyMDE({
+                element: textarea,
+                autofocus: true,
+                spellChecker: false,
+                autosave: { enabled: false },
+                minHeight: '360px',
+                status: false,
+                toolbar: [
+                'heading','heading-smaller','heading-bigger', '|',
+                'bold','italic','strikethrough','|',
+                'code',
+                'horizontal-rule',
+                'quote',
+                'unordered-list','ordered-list', '|',                       
+                'link','image','upload-image', '|', 
+                'preview', 'side-by-side', 'fullscreen', '|', 
+                'guide', 'clean-block',  '|',  
+                'undo','redo'
+                ],
+            });
+        });
+    </script>
+{% endblock %}

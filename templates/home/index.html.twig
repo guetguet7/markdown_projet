@@ -1,0 +1,29 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="mb-4">
+        <h1 class="h3 mb-2">Bienvenue dans la documentation</h1>
+        <p class="text-muted mb-0">Choisissez une catégorie pour parcourir les pages disponibles.</p>
+    </div>
+
+    {% if categories is defined and categories is not empty %}
+        <div class="row g-3">
+            {% for item in categories %}
+                <div class="col-12 col-md-6 col-lg-4">
+                    <a class="card h-100 text-decoration-none text-body border shadow-sm" href="{{ path('app_docs', {slug: item.slug}) }}">
+                        <div class="card-body">
+                            <h2 class="h5 mb-2">{{ item.label }}</h2>
+                            <p class="mb-0 text-muted">Voir la documentation {{ item.label }}</p>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">Aucune catégorie trouvée pour le moment.</div>
+    {% endif %}
+</div>
+{% endblock %}

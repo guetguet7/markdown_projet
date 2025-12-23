@@ -1,0 +1,128 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block admin_body %}
+    <div class="admin-shell d-flex">
+        <nav class="admin-sidebar d-flex flex-column p-3">
+            <div class="d-flex align-items-center mb-4">
+                <div class="rounded-circle bg-success-subtle text-dark-emphasis d-inline-flex align-items-center justify-content-center" style="width:40px;height:40px;">
+                    <span class="fw-bold">MD</span>
+                </div>
+                <div class="ms-3">
+                    <div class="fw-semibold">Admin</div>
+                    <div class="text-secondary small">Markdown</div>
+                </div>
+            </div>
+            <div class="nav flex-column gap-1">
+                {% block admin_nav %}
+                    <a class="nav-link px-3 py-2 active" href="{{ path('admin') }}">Dashboard</a>
+                    <a class="nav-link px-3 py-2" href="{{ path('admin_docs') }}">Documentation</a>
+                    <a class="nav-link px-3 py-2" href="{{ path('admin_categories') }}">Catégories</a>
+                {% endblock %}
+            </div>
+            <div class="mt-auto pt-3 border-top border-secondary-subtle text-secondary small">
+                Connecté comme {{ app.user ? app.user.userIdentifier : 'invité' }}
+            </div>
+        </nav>
+
+        <div class="flex-grow-1 d-flex flex-column">
+            <header class="admin-topbar py-3 px-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="text-secondary text-uppercase small mb-1">Espace</div>
+                    <h1 class="h4 mb-0">{% block admin_title %}Tableau de bord{% endblock %}</h1>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <a class="btn btn-outline-light btn-sm" href="{{ path('app_home') }}">Voir le site</a>
+                </div>
+            </header>
+
+            <main class="flex-grow-1 p-4">
+                {% for label, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }} shadow-sm">{{ message }}</div>
+                    {% endfor %}
+                {% endfor %}
+
+                <div class="admin-card p-4">
+                    {% block content %}
+                        <div class="row g-3">
+                            <div class="col-lg-4">
+                                <div class="admin-card p-3 h-100">
+                                    <div class="text-secondary text-uppercase small mb-1">Statut</div>
+                                    <div class="h4 mb-0">Bienvenue dans l’admin</div>
+                                    <p class="mb-0 text-secondary small">Centralisez vos documents et catégories.</p>
+                                </div>
+                            </div>
+                            <div class="col-lg-8">
+                                <div class="admin-card p-3 h-100">
+                                    <div class="d-flex align-items-center justify-content-between mb-3 gap-2 flex-wrap">
+                                        <div class="btn-group btn-group-sm">
+                                            <a class="btn btn-outline-light" href="{{ path('admin_docs_new') }}">+ Nouveau fichier</a>
+                                            <a class="btn btn-outline-light" href="{{ path('admin_categories') }}">Gérer les catégories</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endblock %}
+                </div>
+
+                <div class="admin-card p-4 mt-3">
+                    <div class="row g-3">
+                        <div class="col-lg-6">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="text-secondary text-uppercase small">Catégories</div>
+                                <span class="badge text-bg-light">{{ categories|length }} élément{{ categories|length > 1 ? 's' : '' }}</span>
+                            </div>
+                            {% if categories is empty %}
+                                <p class="text-secondary small mb-0">Aucune catégorie.</p>
+                            {% else %}
+                                <ul class="list-group list-group-flush bg-transparent">
+                                    {% for cat in categories %}
+                                        <li class="list-group-item bg-transparent text-light d-flex justify-content-between align-items-center px-0">
+                                            <span>{{ cat.label }}</span>
+                                            <a class="btn btn-outline-light btn-sm" href="{{ path('admin_categories') }}">Gérer</a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="text-secondary text-uppercase small">Documentation</div>
+                                <span class="badge text-bg-light">{{ docs|length }} fichier{{ docs|length > 1 ? 's' : '' }}</span>
+                            </div>
+                            {% if docs is empty %}
+                                <p class="text-secondary small mb-0">Aucun fichier Markdown.</p>
+                            {% else %}
+                                <div class="table-responsive">
+                                    <table class="table table-dark table-striped align-middle mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Titre</th>
+                                                <th scope="col" class="text-end">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for doc in docs %}
+                                                <tr>
+                                                    <td class="fw-semibold">{{ doc.label }}</td>
+                                                    <td class="text-end">
+                                                        <div class="btn-group btn-group-sm">
+                                                            <a class="btn btn-outline-light" href="{{ path('app_docs', { slug: doc.slug }) }}" target="_blank">Voir</a>
+                                                            <a class="btn btn-outline-light" href="{{ path('admin_docs_edit', { slug: doc.slug }) }}">Éditer</a>
+                                                            <a class="btn btn-outline-light" href="{{ path('admin_docs_download', { slug: doc.slug }) }}">Télécharger</a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+{% endblock %}

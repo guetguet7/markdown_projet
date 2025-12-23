@@ -1,0 +1,38 @@
+{% extends 'layout.html.twig' %}
+
+{% block title %}Documentation
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .markdown-body ol { list-style: decimal; padding-left: 1.5rem; }
+        .markdown-body ul { list-style: disc; padding-left: 1.5rem; }
+        .markdown-body li + li { margin-top: .3rem; }
+    </style>
+{% endblock %}
+
+{% block content %}
+	<div class="container pt-2 pb-4">
+		<main>
+            {% if slug is defined and slug == 'index' and categories is defined and categories is not empty %}
+                <div class="row g-3 mb-4">
+                    {% for item in categories %}
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <a class="card h-100 text-decoration-none text-body border shadow-sm" href="{{ path('app_docs', {slug: item.slug}) }}">
+                                <div class="card-body">
+                                    <h2 class="h5 mb-2">{{ item.label }}</h2>
+                                    <p class="mb-0 text-muted">Voir la documentation {{ item.label }}</p>
+                                </div>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+			<article class="markdown-body">
+				{{ markdown|markdown_to_html }}
+			</article>
+		</main>
+	</div>
+{% endblock %}
